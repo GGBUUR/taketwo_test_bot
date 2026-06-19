@@ -38,7 +38,7 @@ logger = logging.getLogger("multi_stock_bot")
 # =====================
 # Токен лучше не хранить в коде — используйте переменную окружения:
 #   export STOCKBOT_TOKEN="ваш_токен"
-TOKEN = os.environ.get("STOCKBOT_TOKEN", "TOKEN_NOT_SET")
+TOKEN = os.environ.get("STOCKBOT_TOKEN")
 
 THRESHOLD = 1.5
 

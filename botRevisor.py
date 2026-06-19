@@ -37,7 +37,7 @@ logger = logging.getLogger("revisor_bot")
 # Если переменная не задана — используется значение ниже как fallback,
 # но раз этот токен уже был показан в переписке — обязательно перевыпустите
 # его через @BotFather (/revoke) и подставьте новый.
-TOKEN = os.environ.get("REVISOR_BOT_TOKEN", "TOKEN_NOT_SET")
+TOKEN = os.environ.get("REVISOR_BOT_TOKEN")
 
 REGISTRY_FILE = "botsRegistry.json"
 

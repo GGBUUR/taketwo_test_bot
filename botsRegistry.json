@@ -1,0 +1,7 @@
+{
+  "ttwo": {
+    "name": "StockStatus Monitor",
+    "status_file": "stockState.json",
+    "heartbeat_file": "stockHeartbeat.json"
+  }
+}

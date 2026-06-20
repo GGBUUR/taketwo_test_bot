@@ -16,6 +16,14 @@ from telegram.ext import (
     ContextTypes,
 )
 
+@flask_app.route('/heartbeat')
+def get_heartbeat():
+    try:
+        with open("stockHeartbeat.json", "r") as f:
+            data = json.load(f)
+        return data, 200  # Отдаем содержимое файла ревизору
+    except Exception:
+        return {"status": "error", "message": "File not found"}, 404
 # =====================
 # LOGGING
 # =====================

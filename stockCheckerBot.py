@@ -4,6 +4,7 @@ import logging
 import os
 import time
 import uuid
+from flask import Flask
 
 from telegram import (
     Update,
@@ -23,6 +24,7 @@ from telegram.ext import (
     filters,
 )
 
+flask_app = Flask(__name__)
 # =====================
 # LOGGING
 # =====================

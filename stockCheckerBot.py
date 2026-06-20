@@ -696,8 +696,19 @@ async def price_job(context: ContextTypes.DEFAULT_TYPE):
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     logger.error("Исключение при обработке апдейта:", exc_info=context.error)
 
-def heartbeat_job(context):
+async def heartbeat_job(context):
+    # Просто вызываем твою функцию внутри асинхронной обертки
     heartbeat()
+
+# 3. Маршрут для Flask (чтобы Ревизор мог забрать этот файл через интернет)
+@flask_app.route('/heartbeat')
+def get_heartbeat():
+    try:
+        with open("stockHeartbeat.json", "r") as f:
+            data = json.load(f)
+        return data, 200  # Отдаем содержимое файла ревизору
+    except Exception:
+        return {"status": "error", "message": "File not found"}, 404
 # =====================
 # BOT SETUP
 # =====================

@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import time
+import requests
 
 from telegram import (
     Update,
@@ -101,30 +102,49 @@ def load_registry():
 # READ BOT DATA
 # =====================
 def read_bot_data(bot: dict):
-    status = load_json(bot.get("status_file"), {})
-    heartbeat = load_json(bot.get("heartbeat_file"), {})
+    # 1. По-прежнему читаем локальные файлы, если они есть (например, state_file)
     state_file = load_json(bot.get("state_file"), {})
+    status = load_json(bot.get("status_file"), {})
+    
+    monitoring = state_file.get("monitoring", True)
+    if not monitoring:
+        return "⏸ PAUSED (USER STOPPED)", None, None, None
 
+    # 2. ПОЛУЧАЕМ ХЕРТБИТ ПО СЕТИ С RENDER
+    # В botsRegistry.json для бота добавь поле "url": "https://твой-проект.onrender.com"
+    bot_url = bot.get("url")
+    last_beat = None
+
+    if bot_url:
+        try:
+            # Стучимся на роут /heartbeat, который мы сделали во Flask бота
+            response = requests.get(f"{bot_url.rstrip('/')}/heartbeat", timeout=5)
+            if response.status_code == 200:
+                heartbeat_data = response.json()
+                # Извлекаем ключ "time", который у тебя записывается в боте!
+                last_beat = heartbeat_data.get("time") 
+        except Exception as e:
+            logger.error("Ревизор не смог достучаться до Flask на Render: %s", e)
+    
+    # Фолбэк: если URL нет, пробуем прочитать локально (как раньше)
+    if not last_beat:
+        heartbeat = load_json(bot.get("heartbeat_file"), {})
+        last_beat = heartbeat.get("time")
+
+    # 3. Расчет лага и статусов
     now = time.time()
-
     price = status.get("price")
     change = status.get("change")
-    last_beat = heartbeat.get("time")
-
-    monitoring = state_file.get("monitoring", True)
-
-    # 💡 ВАЖНО: это НЕ DEAD
-    if not monitoring:
-        return "⏸ PAUSED (USER STOPPED)", price, change, None
 
     if not last_beat:
         return "❌ NO DATA", price, change, None
 
-    lag = now - last_beat
+    lag = now - float(last_beat)
 
-    if lag < 7:
+    # Поскольку проверка идет через интернет, сделаем интервалы чуть мягче (с учетом сетевых задержек)
+    if lag < 12:
         state = "🟢 RUNNING"
-    elif lag < 15:
+    elif lag < 25:
         state = "🟡 LAGGING"
     else:
         state = "🔴 DEAD"

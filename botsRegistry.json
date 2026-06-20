@@ -1,7 +1,9 @@
 {
-  "ttwo": {
-    "name": "StockStatus Monitor",
-    "status_file": "stockState.json",
-    "heartbeat_file": "stockHeartbeat.json"
+  "my_stock_bot": {
+    "name": "Stock Checker Bot",
+    "status_file": "stockStatus.json",
+    "heartbeat_file": "stockHeartbeat.json",
+    "state_file": "botState.json",
+    "url": "https://taketwo-test-bot.onrender.com" 
   }
 }
